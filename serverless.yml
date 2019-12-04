@@ -2,9 +2,10 @@ service:
   name: dyn-dns
 
 custom:
-  hostname: ${opt:hostname}
-  sharedSecret: ${opt:sharedSecret}
-  hostedZoneId: ${opt:hostedZoneId}
+  stage: ${opt:stage, 'dev'}
+  hostname: ${ssm:/${self:service}/${self:custom.stage}/hostname}
+  sharedSecret: ${ssm:/${self:service}/${self:custom.stage}/sharedSecret~true}
+  hostedZoneId: ${ssm:/${self:service}/${self:custom.stage}/hostedZoneId}
 
 provider:
   name: aws
@@ -17,6 +18,7 @@ provider:
       Action:
         - "route53:ChangeResourceRecordSets"
       Resource: arn:aws:route53:::hostedzone/${self:custom.hostedZoneId}
+  cfnRole: ${cf:DynDnsIam.CloudformationDeploymentRoleOutput}
 
 package:
   artifact: build/libs/dyn-dns-all.jar

@@ -1,0 +1,72 @@
+version: 2.1
+
+workflows:
+  version: 2
+  "Build and deploy":
+    jobs:
+      - build
+      - deploy_dev:
+          requires:
+            - build
+          context: AWS
+          filters:
+            branches:
+              only: master
+
+jobs:
+  build:
+    docker:
+      - image: circleci/openjdk:8
+
+    working_directory: ~/repo
+
+    steps:
+      - checkout
+
+      # Download and cache dependencies
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "build.gradle" }}
+            # fallback to using the latest cache if no exact match is found
+            - v1-dependencies-
+
+      - run: ./gradlew dependencies
+
+      - save_cache:
+          paths:
+            - ~/.gradle
+          key: v1-dependencies-{{ checksum "build.gradle" }}
+
+      - run: ./gradlew check shadowJar
+
+      - persist_to_workspace:
+          root: ~/repo/build
+          paths: libs
+
+  deploy_dev:
+    docker:
+      - image: circleci/node:10.15
+
+    working_directory: ~/repo
+
+    steps:
+      - checkout
+
+      - attach_workspace:
+          at: ~/repo/build
+
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "package-lock.json" }}
+            # fallback to using the latest cache if no exact match is found
+            - v1-dependencies-
+
+      - run: npm ci
+
+      - save_cache:
+          paths:
+            - node_modules
+          key: v1-dependencies-{{ checksum "package-lock.json" }}
+
+      - deploy:
+          command: npx serverless deploy --stage dev

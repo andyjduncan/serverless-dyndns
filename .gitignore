@@ -4,3 +4,4 @@
 .serverless
 build
 node_modules
+.gradletasknamecache
