@@ -18,11 +18,11 @@ class DynDnsHandler implements RequestHandler<APIGatewayProxyRequestEvent, APIGa
 
     private final Route53Client route53
 
+    @SuppressWarnings('unused')
     DynDnsHandler() {
         route53 = Route53Client.builder().region(AWS_GLOBAL).build()
     }
 
-    @SuppressWarnings('unused')
     DynDnsHandler(Route53Client route53) {
         this.route53 = route53
     }
