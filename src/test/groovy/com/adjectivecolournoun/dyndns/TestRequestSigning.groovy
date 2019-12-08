@@ -7,6 +7,8 @@ import software.amazon.awssdk.services.route53.Route53Client
 import software.amazon.awssdk.services.route53.model.ChangeResourceRecordSetsResponse
 import spock.lang.Specification
 
+import java.util.function.Consumer
+
 import static org.apache.commons.lang3.RandomStringUtils.random
 
 class TestRequestSigning extends Specification {
@@ -15,7 +17,7 @@ class TestRequestSigning extends Specification {
     public final EnvironmentVariables environmentVariables = new EnvironmentVariables()
 
     def handler = new DynDnsHandler(Mock(Route53Client) {
-        changeResourceRecordSets(_) >> ChangeResourceRecordSetsResponse.builder()
+        changeResourceRecordSets(_ as Consumer) >> ChangeResourceRecordSetsResponse.builder()
                 .changeInfo({ cb -> cb.status('UPDATING')})
                 .build()
     })
