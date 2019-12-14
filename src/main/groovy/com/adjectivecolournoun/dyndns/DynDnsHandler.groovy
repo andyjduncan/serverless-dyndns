@@ -41,7 +41,12 @@ class DynDnsHandler implements RequestHandler<APIGatewayProxyRequestEvent, APIGa
 
         def ipAddress = input.headers['X-Forwarded-For'].split(',').first()
 
-        updateRoute53(ipAddress)
+        def hostname = System.getenv('HOSTNAME')
+        def hostedZoneId = System.getenv('HOSTED_ZONE_ID')
+
+        if (!currentAddressMatches(ipAddress, hostname, hostedZoneId)) {
+            updateRoute53(ipAddress, hostname, hostedZoneId)
+        }
 
         new APIGatewayProxyResponseEvent().withStatusCode(204)
     }
@@ -55,11 +60,26 @@ class DynDnsHandler implements RequestHandler<APIGatewayProxyRequestEvent, APIGa
         expectedSignature == givenSignature
     }
 
-    private updateRoute53(String ipAddress) {
-        def hostname = System.getenv('HOSTNAME')
-        def hostedZoneId = System.getenv('HOSTED_ZONE_ID')
+    private boolean currentAddressMatches(String ipAddress, String hostname, String hostedZoneId) {
+        def listResourceRecordSetsResponse = route53.listResourceRecordSets({ req ->
+            req
+                    .hostedZoneId(hostedZoneId)
+                    .startRecordName(hostname)
+                    .startRecordType(RRType.A)
+                    .maxItems('1')
+        })
 
-        println "Setting $hostname to $ipAddress"
+        listResourceRecordSetsResponse
+                .resourceRecordSets()
+                .findAll { it.type() == RRType.A }
+                .collect { it.resourceRecords() }
+                .flatten()
+                .collect { it.value() }
+                .findAll { it == ipAddress }
+    }
+
+    private updateRoute53(String ipAddress, String hostname, String hostedZoneId) {
+        println "Setting ${hostname} to $ipAddress"
 
         println route53.changeResourceRecordSets({ request ->
             request.hostedZoneId(hostedZoneId)
