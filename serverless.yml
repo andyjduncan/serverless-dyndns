@@ -16,6 +16,7 @@ provider:
   iamRoleStatements:
     - Effect: "Allow"
       Action:
+        - "route53:ListResourceRecordSets"
         - "route53:ChangeResourceRecordSets"
       Resource: arn:aws:route53:::hostedzone/${self:custom.hostedZoneId}
   cfnRole: ${cf:DynDnsIam.CloudformationDeploymentRoleOutput}
