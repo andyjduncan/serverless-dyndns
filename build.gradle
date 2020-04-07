@@ -13,7 +13,7 @@ dependencies {
     implementation 'org.codehaus.groovy:groovy-all:2.5.10'
     implementation 'com.amazonaws:aws-lambda-java-core:1.2.0'
     implementation 'com.amazonaws:aws-lambda-java-events:2.2.7'
-    implementation 'software.amazon.awssdk:route53:2.11.9'
+    implementation 'software.amazon.awssdk:route53:2.11.10'
     implementation 'io.github.http-builder-ng:http-builder-ng-core:1.0.4'
 
     runtime 'ch.qos.logback:logback-classic:1.3.0-alpha5'
