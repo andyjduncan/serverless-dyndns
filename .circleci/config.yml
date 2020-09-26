@@ -16,7 +16,7 @@ workflows:
 jobs:
   build:
     docker:
-      - image: circleci/openjdk:8
+      - image: cimg/openjdk:11.0
 
     working_directory: ~/repo
 
@@ -45,7 +45,7 @@ jobs:
 
   deploy_dev:
     docker:
-      - image: circleci/node:10.15
+      - image: cimg/node:10.22
 
     working_directory: ~/repo
 
@@ -65,7 +65,7 @@ jobs:
 
       - save_cache:
           paths:
-            - node_modules
+            - ~/.npm
           key: v1-dependencies-{{ checksum "package-lock.json" }}
 
       - deploy:
