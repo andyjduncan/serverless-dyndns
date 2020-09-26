@@ -9,6 +9,11 @@ repositories {
 
 archivesBaseName = 'dyn-dns'
 
+java {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+}
+
 dependencies {
     implementation 'org.codehaus.groovy:groovy:3.0.5'
     implementation 'com.amazonaws:aws-lambda-java-core:1.2.1'
