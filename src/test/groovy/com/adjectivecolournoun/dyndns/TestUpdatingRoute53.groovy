@@ -1,8 +1,6 @@
 package com.adjectivecolournoun.dyndns
 
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent
-import org.junit.Rule
-import org.junit.contrib.java.lang.system.EnvironmentVariables
 import software.amazon.awssdk.core.SdkResponse
 import software.amazon.awssdk.services.route53.Route53Client
 import software.amazon.awssdk.services.route53.model.*
@@ -16,8 +14,7 @@ import static software.amazon.awssdk.services.route53.model.ChangeAction.UPSERT
 
 class TestUpdatingRoute53 extends Specification {
 
-    @Rule
-    public final EnvironmentVariables environmentVariables = new EnvironmentVariables()
+    private environmentVariables = [:]
 
     def hostname = random(10)
     def sharedSecret = random(10)
@@ -27,7 +24,7 @@ class TestUpdatingRoute53 extends Specification {
 
     def route53 = Mock(Route53Client)
 
-    def handler = new DynDnsHandler(route53)
+    def handler = new DynDnsHandler(route53, { environmentVariables[it] })
 
     void setup() {
         environmentVariables.HOSTNAME = hostname
