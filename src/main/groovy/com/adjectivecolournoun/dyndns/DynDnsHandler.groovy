@@ -18,13 +18,17 @@ class DynDnsHandler implements RequestHandler<APIGatewayProxyRequestEvent, APIGa
 
     private final Route53Client route53
 
+    private final Closure<String> config
+
     @SuppressWarnings('unused')
     DynDnsHandler() {
         route53 = Route53Client.builder().region(AWS_GLOBAL).build()
+        this.config = System.&getenv as Closure<String>
     }
 
-    DynDnsHandler(Route53Client route53) {
+    DynDnsHandler(Route53Client route53, Closure<String> config) {
         this.route53 = route53
+        this.config = config
     }
 
     @Override
@@ -41,8 +45,8 @@ class DynDnsHandler implements RequestHandler<APIGatewayProxyRequestEvent, APIGa
 
         def ipAddress = input.headers['X-Forwarded-For'].split(',').first()
 
-        def hostname = System.getenv('HOSTNAME')
-        def hostedZoneId = System.getenv('HOSTED_ZONE_ID')
+        def hostname = config('HOSTNAME')
+        def hostedZoneId = config('HOSTED_ZONE_ID')
 
         if (!currentAddressMatches(ipAddress, hostname, hostedZoneId)) {
             updateRoute53(ipAddress, hostname, hostedZoneId)
@@ -51,9 +55,9 @@ class DynDnsHandler implements RequestHandler<APIGatewayProxyRequestEvent, APIGa
         new APIGatewayProxyResponseEvent().withStatusCode(204)
     }
 
-    private static boolean signatureValid(String givenSignature) {
-        def hostname = System.getenv('HOSTNAME')
-        def sharedSecret = System.getenv('SHARED_SECRET')
+    private boolean signatureValid(String givenSignature) {
+        def hostname = config('HOSTNAME')
+        def sharedSecret = config('SHARED_SECRET')
 
         def expectedSignature = "$hostname:$sharedSecret".sha256()
 
