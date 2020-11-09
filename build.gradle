@@ -17,7 +17,7 @@ java {
 dependencies {
     implementation 'org.codehaus.groovy:groovy:3.0.6'
     implementation 'com.amazonaws:aws-lambda-java-core:1.2.1'
-    implementation 'com.amazonaws:aws-lambda-java-events:3.5.0'
+    implementation 'com.amazonaws:aws-lambda-java-events:3.6.0'
     implementation 'software.amazon.awssdk:route53:2.15.20'
 
     runtime 'ch.qos.logback:logback-classic:1.3.0-alpha5'
